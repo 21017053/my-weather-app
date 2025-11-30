@@ -1,0 +1,14 @@
+# node
+node_modules/
+
+# 환경변수 파일 (혹시 쓴다면)
+.env
+.env.local
+.env.*.local
+
+# Vercel 설정 폴더(자동 생성될 수 있음)
+.vercel/
+
+# 기타 에디터 설정
+.vscode/
+.DS_Store

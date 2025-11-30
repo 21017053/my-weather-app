@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <title>Outfit Weather | 오늘 뭐 입지?</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body class="theme-default">
+  <header class="app-header">
+    <div class="logo">
+      <span class="logo-icon">☀️</span>
+      <div class="logo-text">
+        <h1>Outfit Weather</h1>
+        <p>오늘 날씨 + 옷차림 추천</p>
+      </div>
+    </div>
+
+    <div class="search-area">
+      <input id="cityInput" type="text" placeholder="도시를 입력하세요 (예: Seoul)" />
+      <button id="searchBtn">검색</button>
+    </div>
+  </header>
+
+  <main class="app-main">
+    <section class="current-weather card" id="currentWeather">
+      <!-- 현재 날씨 표시 영역 -->
+      <p class="placeholder">도시를 검색하면 현재 날씨가 표시됩니다.</p>
+    </section>
+
+    <section class="outfit card" id="outfitSuggestion">
+      <!-- 옷차림 추천 영역 -->
+    </section>
+
+    <section class="forecast card">
+      <h2>3일 예보</h2>
+      <div class="forecast-list" id="forecastList">
+        <!-- 예보 카드들 -->
+      </div>
+    </section>
+
+    <section class="recent-search card">
+      <h2>최근 검색</h2>
+      <div id="recentSearches" class="recent-list">
+        <!-- localStorage에서 버튼 생성 -->
+      </div>
+    </section>
+  </main>
+
+  <footer class="app-footer">
+    <button id="unitToggle" data-unit="metric">지금: ℃ (클릭 시 ℉)</button>
+    <p>Powered by OpenWeatherMap</p>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>
