@@ -1,13 +1,269 @@
-## 배포
 
-- 이 프로젝트는 GitHub + Vercel을 이용해 배포되었습니다.
-- GitHub 저장소: https://github.com/21017053/my-weather-app
-- Vercel URL: https://my-weather-app-eight-lemon.vercel.app/
 
-배포 방식:
-1. 로컬에서 Git으로 버전 관리 후 GitHub main 브랜치에 push
-2. Vercel에서 해당 GitHub 리포를 Import하여 Project 생성
-3. Environment Variables에 `OPENWEATHER_KEY`를 등록
-4. `/api/weather` 서버리스 함수에서 `process.env.OPENWEATHER_KEY`를 사용해
-   OpenWeatherMap API를 호출
-5. main 브랜치에 새 커밋이 push될 때마다 Vercel이 자동으로 재배포
+---
+
+````md
+# Outfit Weather ☀️🌧️ | 오늘 뭐 입지?
+
+> **나만의 날씨 + 옷차림 추천 웹사이트**  
+> OpenWeather API 기반으로 현재 날씨·3일 예보·공기질·시간별 기온 변화를 보여주고,  
+> 날씨와 공기질을 바탕으로 오늘 옷차림과 마스크 착용 여부까지 추천해 주는 웹앱입니다.
+
+- **Demo:** https://my-weather-app-eight-lemon.vercel.app/  
+- **GitHub:** https://github.com/21017053/my-weather-app
+
+---
+
+## 1. 프로젝트 개요
+
+기말 과제 요구사항인 **날씨 예보 웹사이트**를 바탕으로,  
+단순한 날씨 조회가 아니라 **“오늘 뭐 입지?”**에 초점을 맞춘 라이프스타일형 날씨 서비스입니다.
+
+- 도시 검색 또는 **현재 위치(Geolocation)** 기준으로 날씨 조회
+- **현재 날씨 + 3일 예보 + 공기질(AQI) + 시간별 기온 그래프**
+- 온도, 날씨, 공기질을 모두 사용한 **옷차림 + 마스크 추천 로직**
+- **다국어 지원 (한국어 / 영어)**
+- **반응형 디자인**으로 모바일에서도 자연스럽게 사용 가능
+
+---
+
+## 2. 기술 스택
+
+- **Frontend**
+  - HTML5
+  - CSS3 (Mobile First, Flex/Grid, Glassmorphism 느낌)
+  - Vanilla JavaScript (ES6+, `async/await`, 모듈화)
+  - Chart.js (시간별 기온 라인 차트)
+
+- **Backend (Serverless)**
+  - Vercel Serverless Function (`/api/weather`)
+  - OpenWeather API 연동
+  - 환경 변수로 **API Key 보안 처리**
+
+---
+
+## 3. 폴더 구조
+
+```bash
+my-weather-app/
+├─ index.html          # 메인 페이지
+├─ style.css           # 전체 스타일 (모바일 퍼스트, 반응형)
+├─ app.js              # 프론트엔드 JS 로직 (API, UI, Storage 등)
+└─ api/
+   └─ weather.js       # Vercel Serverless Function (OpenWeather 프록시)
+````
+
+---
+
+## 4. 주요 기능 정리
+
+### 4-1. 필수 기능 매핑
+
+| 요구사항                     | 구현 내용                                                                     |
+| ------------------------ | ------------------------------------------------------------------------- |
+| 도시 검색                    | 입력창 + `검색` 버튼, Enter 키, 입력 디바운스(자동 검색) 모두 지원                              |
+| API 연동 / JSON 파싱         | `/api/weather` → OpenWeather API → `current`, `forecast`, `air_pollution` |
+| 날씨 표시                    | 도시/국가, 현재 온도, 상태, 아이콘, 습도, 풍속                                             |
+| 예보 카드 (3~5일)             | 3일 예보, 날짜·온도·아이콘 표시, 3시간 간격 데이터에서 대표값 추출                                  |
+| 단위 전환 (℃ ↔ ℉)            | 버튼 클릭 시 전역 단위 전환, 최근 위치 다시 호출                                             |
+| 시각적 변화 (배경/아이콘)          | 날씨 + 낮/밤에 따라 테마 배경 변경 (맑음/비/눈/밤 등)                                        |
+| 오류 처리                    | 잘못된 도시, 네트워크 오류, 위치 권한 거부 등 상황별 메시지                                       |
+| 최근 검색어 저장 (localStorage) | 최대 5개 저장, 버튼으로 재검색 가능                                                     |
+| API Key 보안               | Vercel 환경 변수 `OPENWEATHER_KEY` 사용, 클라이언트에 직접 노출 X                         |
+
+---
+
+### 4-2. 선택 확장 기능
+
+필수 외에도 아래 확장 기능들을 구현했습니다.
+
+1. **위치 자동 감지 (Geolocation API)**
+
+   * `📍 내 위치` 버튼 클릭 시 브라우저 Geolocation 사용
+   * 현재 좌표 기준으로 **현재 날씨 + 예보 + 공기질 + 차트**를 한 번에 조회
+   * 위치 권한 거부 / 타임아웃 등 상황별 에러 처리
+
+2. **미세먼지 / 공기질 표시 (Air Pollution API)**
+
+   * OpenWeather **Air Pollution API (`/air_pollution`)** 연동
+   * AQI 1~5 레벨을 **텍스트(매우 좋음~매우 나쁨 / Excellent~Very Poor)**로 매핑
+   * PM2.5, PM10, O₃, NO₂, SO₂, CO 농도 표시
+
+3. **시간별 기온 그래프 (Chart.js)**
+
+   * 3시간 간격 8개 데이터(약 24시간)를 사용해 **시간별 기온 라인 차트** 표시
+   * 단위(℃/℉) 변경 시 차트 라벨/데이터도 동시에 갱신
+   * 모바일에서도 보기 좋도록 카드 높이 + 캔버스 높이를 CSS로 안정적으로 고정
+
+4. **다국어 지원 (KO / EN)**
+
+   * `🌐 EN / 🌐 한국어` 버튼으로 **한국어 ↔ 영어 토글**
+   * API 요청 시 `lang=kr/en` 사용 → 날씨 설명도 해당 언어로 표시
+   * UI 텍스트(플레이스홀더, 버튼, 타이틀, placeholder 문구 등) i18n 적용
+   * Outfit 추천, 오류 메시지, 공기질 설명까지 **양쪽 언어로 자연스럽게** 제공
+
+5. **Outfit 추천 + 공기질 연동**
+
+   * 온도 범위에 따라 **옷차림 추천 로직** 구현
+
+     * 영하 / 쌀쌀 / 선선 / 따뜻 / 더움 / 매우 더움 등 구간별 문구
+     * 비/눈/뇌우일 때 우산, 방수 외투, 미끄럼 방지 신발 등 추가 안내
+   * 공기질(AQI)까지 함께 고려:
+
+     * AQI 4~5: “공기질이 좋지 않으므로 마스크 착용 권장” (😷 아이콘 포함)
+     * AQI 3: 민감군 대상 마스크 고려 안내
+   * 한/영 모두 자연스럽게 표현
+
+6. **페이지 로드 시 마지막 위치 자동 로딩**
+
+   * `localStorage`에 `lastLocation` 저장 (도시명 또는 좌표)
+   * 페이지 재접속 시 **마지막으로 조회했던 위치**를 자동으로 다시 불러오기
+   * 사용자는 매번 도시를 다시 입력할 필요 없이 바로 최신 날씨를 확인 가능
+
+7. **입력 디바운스 & 자동 검색**
+
+   * 도시 입력창에 입력 후 **0.8초 동안 타이핑이 멈추면 자동으로 검색**
+   * 너무 짧은 입력(2글자 미만)은 무시하여 불필요한 API 호출 방지
+   * 사용자는 엔터를 누르지 않아도 자연스럽게 검색 경험을 얻을 수 있음
+
+8. **접근성(A11y) 강화**
+
+   * 에러 메시지, 로딩 상태에 `role="alert"` / `role="status"`와 `aria-live="polite"` 적용
+   * `<main aria-label="날씨 정보">`, 검색 영역 `aria-label` 등으로 스크린 리더 친화적 구성
+   * 오동작 방지를 위해 폼 요소의 초점/키보드 사용을 고려한 구조
+
+---
+
+## 5. JavaScript 구조 설계
+
+### 5-1. 관심사 분리
+
+JS는 크게 세 파트로 나누어 설계했습니다.
+
+1. **WeatherAPI**
+
+   * OpenWeather API 호출 담당 (현재 날씨, 예보, 공기질, 도시/좌표 등)
+   * `getCurrent`, `getForecast`, `getCurrentByCoords`, `getForecastByCoords`, `getAirByCoords`
+   * `lang`, `units`, `lat/lon` 등을 파라미터로 받아 **비즈니스 로직에서 재사용** 가능하게 설계
+
+2. **UI**
+
+   * 화면에 보여지는 모든 DOM 업데이트 책임
+   * `updateCurrentWeather`, `updateForecast`, `updateOutfitSuggestion`, `updateAirQuality`, `updateHourlyChart`, `updateBackgroundTheme`
+   * 로딩, 오류, 마지막 업데이트 시간, 최근 검색 렌더링 등 포함
+
+3. **Storage**
+
+   * `localStorage` 접근을 한 곳에서 관리
+   * `getRecent`, `saveRecent`, `getLastLocation`, `saveLastLocation`
+
+각 기능은 **단일 책임 원칙**을 지키도록 최대한 분리하여,
+유지보수 및 기능 확장이 쉽도록 구성했습니다.
+
+---
+
+## 6. API 구조 및 보안
+
+### 6-1. Serverless API 엔드포인트
+
+* 경로: `/api/weather`
+* 사용 예시:
+
+  * 현재 날씨 (도시):
+    `/api/weather?city=Seoul&type=current&units=metric&lang=kr`
+  * 5일 예보 (좌표):
+    `/api/weather?lat=37.57&lon=126.98&type=forecast&units=metric&lang=kr`
+  * 공기질 (좌표):
+    `/api/weather?lat=37.57&lon=126.98&type=air`
+
+### 6-2. Vercel 환경 변수
+
+* 환경 변수 이름: `OPENWEATHER_KEY`
+* `api/weather.js`에서 `process.env.OPENWEATHER_KEY`로 읽어 사용
+* 클라이언트(JS) 코드에서는 **절대 API Key를 직접 사용하지 않고**,
+  항상 `/api/weather`를 거치도록 구현하여 **API Key가 노출되지 않도록** 처리함.
+
+---
+
+## 7. 실행 방법
+
+### 7-1. 로컬 실행 (개발용)
+
+1. 레포지토리 클론
+
+```bash
+git clone https://github.com/21017053/my-weather-app.git
+cd my-weather-app
+```
+
+2. OpenWeather API Key 준비
+
+* [https://openweathermap.org](https://openweathermap.org) 에서 발급
+* Vercel CLI를 사용하는 경우, 아래처럼 설정 가능:
+
+```bash
+vercel env add OPENWEATHER_KEY
+# 또는 .env 파일을 만들고 로컬 서버에서 읽도록 설정할 수도 있음 (개발 환경 옵션)
+```
+
+3. Vercel Dev (선택)
+
+```bash
+npm i -g vercel
+vercel dev
+```
+
+* `http://localhost:3000` 접속 후 테스트
+* 정적 파일 + `/api/weather` 서버리스 함수가 로컬 환경에서도 동작
+
+### 7-2. 배포 (Vercel)
+
+1. GitHub에 코드 푸시
+2. Vercel에서 `New Project` → 해당 GitHub 레포 선택
+3. Environment Variables에 `OPENWEATHER_KEY` 등록
+4. Deploy
+
+---
+
+## 8. 반응형 / UX 요소
+
+* Mobile First 디자인, 작은 화면에서는:
+
+  * 검색 영역 버튼들이 자동 줄바꿈
+  * 현재 날씨 카드가 세로 레이아웃으로 변형
+  * 차트 카드 높이 고정으로 레이아웃 깨짐 방지
+  * 푸터(단위/언어 토글 + 텍스트)가 세로로 정렬
+* 로딩 스피너 + 상태 텍스트
+* 최근 검색 버튼으로 자주 보는 도시를 빠르게 재조회 가능
+* 페이지 재접속 시 마지막 위치 자동 로딩으로 **실제 서비스 같은 사용성** 제공
+
+---
+
+## 9. 향후 개선 아이디어
+
+* 도시 자동완성 (GeoDB Cities API 등) 도입
+* 즐겨찾는 도시 별칭 저장 (예: “집”, “학교”, “회사”)
+* 체감 온도(Feels like), 체감 기반 Outfit 추천 세분화
+* 비/눈 예측 확률과 연동한 우산/신발 추천 강화
+* PWA(Progressive Web App)로 설치형 앱처럼 사용하기
+
+---
+
+## 10. 마무리
+
+이번 프로젝트에서는 **기본 날씨 조회**를 넘어:
+
+* **API 데이터 기반 UI 변화**
+* **공기질까지 반영한 의사결정 지원(옷차림 + 마스크)**
+* **다국어, 반응형, 접근성, 마지막 상태 복원** 등
+
+실제 서비스에 가까운 기능들을 구현하는 데 초점을 맞췄습니다.
+
+> “날씨를 단순히 보여주는 사이트가 아니라,
+> **사용자의 하루 행동(옷차림, 외출 계획)에 도움이 되는 데이터 기반 웹앱**을 목표로 했습니다.”
+
+```
+
+---
+
+
