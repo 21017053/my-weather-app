@@ -245,17 +245,21 @@ body.theme-night {
   font-weight: 600;
 }
 
-/* 시간별 차트 카드 높이 고정 */
+/* 시간별 차트 카드 + 캔버스 */
 .hourly {
   position: relative;
-  min-height: 260px;   /* 카드 전체 높이 */
+  min-height: 260px;  /* 카드 전체 높이 */
+  overflow: hidden;
 }
 
-/* 캔버스가 카드 안에서 꽉 차도록 */
+.hourly h2 {
+  margin-bottom: 0.5rem;
+}
+
 .hourly canvas {
   display: block;
   width: 100% !important;
-  height: 200px !important;   /* 실제 그래프 영역 높이 */
+  height: 200px !important;  /* 실제 그래프 영역 높이 */
 }
 
 /* 상태바 영역 */
@@ -311,6 +315,7 @@ body.theme-night {
   align-items: center;
   margin-top: 1rem;
   font-size: 0.85rem;
+  gap: 0.5rem;
 }
 
 .app-footer button {
@@ -331,7 +336,7 @@ body.theme-night {
   clip: rect(0 0 0 0);
 }
 
-/* 반응형 */
+/* 반응형: 데스크톱 레이아웃 */
 @media (min-width: 768px) {
   .app-header {
     flex-direction: row;
@@ -364,5 +369,66 @@ body.theme-night {
   }
   .recent-search {
     grid-area: recent;
+  }
+}
+
+/* 🔽 모바일 최적화 (작은 화면용) */
+@media (max-width: 480px) {
+  body {
+    padding: 0.75rem;
+  }
+
+  .logo-text h1 {
+    font-size: 1.3rem;
+  }
+
+  .logo-text p {
+    font-size: 0.8rem;
+  }
+
+  /* 검색 영역: 줄바꿈 + 버튼 넓게 */
+  .search-area {
+    flex-wrap: wrap;
+  }
+
+  .search-area input {
+    flex-basis: 100%;
+  }
+
+  .search-area button {
+    flex: 1;
+    min-width: calc(50% - 0.25rem);
+    font-size: 0.8rem;
+    padding: 0.5rem 0.6rem;
+  }
+
+  /* 현재 날씨 카드: 세로 정렬 */
+  .current-weather-main {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .current-temp {
+    font-size: 2rem;
+  }
+
+  /* 예보 카드 조금 더 좁게 */
+  .forecast-item {
+    min-width: 80px;
+  }
+
+  /* 시간별 차트 높이 약간 줄이기 */
+  .hourly {
+    min-height: 230px;
+  }
+
+  .hourly canvas {
+    height: 170px !important;
+  }
+
+  /* 푸터: 세로로 쌓이게 */
+  .app-footer {
+    flex-direction: column;
+    align-items: flex-start;
   }
 }
