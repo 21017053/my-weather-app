@@ -250,9 +250,17 @@ body.theme-night {
   margin-bottom: 0.5rem;
 }
 
+/* 시간별 차트 카드 높이 고정 */
+.hourly {
+  position: relative;
+  min-height: 260px;   /* 카드 전체 높이 */
+}
+
+/* 캔버스가 카드 안에서 꽉 차도록 */
 .hourly canvas {
-  width: 100%;
-  max-width: 100%;
+  display: block;
+  width: 100% !important;
+  height: 200px !important;   /* 실제 그래프 영역 높이 */
 }
 
 /* 상태바 영역 */
