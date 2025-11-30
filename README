@@ -2,7 +2,7 @@
 
 - 이 프로젝트는 GitHub + Vercel을 이용해 배포되었습니다.
 - GitHub 저장소: https://github.com/21017053/my-weather-app
-- Vercel URL: https://my-weather-app.vercel.app
+- Vercel URL: https://my-weather-app-eight-lemon.vercel.app/
 
 배포 방식:
 1. 로컬에서 Git으로 버전 관리 후 GitHub main 브랜치에 push
