@@ -80,12 +80,29 @@ body.theme-night {
   outline: none;
 }
 
+.search-area input:focus {
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.7);
+}
+
 .search-area button {
   padding: 0.6rem 1rem;
   border-radius: 999px;
   border: none;
   cursor: pointer;
   font-weight: 600;
+  transition: transform 0.1s ease, box-shadow 0.1s ease, opacity 0.2s;
+}
+
+.search-area button:hover:not(:disabled),
+.app-footer button:hover:not(:disabled),
+.recent-list button:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+.search-area button:disabled {
+  opacity: 0.6;
+  cursor: default;
 }
 
 .app-main {
@@ -104,6 +121,11 @@ body.theme-night {
 
 .card h2 {
   margin-bottom: 0.5rem;
+}
+
+.placeholder {
+  opacity: 0.85;
+  font-size: 0.9rem;
 }
 
 .current-weather-main {
@@ -125,7 +147,8 @@ body.theme-night {
 
 .current-extra {
   display: flex;
-  gap: 1rem;
+  flex-wrap: wrap;
+  gap: 0.5rem;
   margin-top: 0.5rem;
   font-size: 0.9rem;
 }
@@ -143,7 +166,7 @@ body.theme-night {
 
 .forecast-item {
   min-width: 90px;
-  background: rgba(0,0,0,0.15);
+  background: rgba(0, 0, 0, 0.15);
   border-radius: 0.75rem;
   padding: 0.6rem;
   text-align: center;
@@ -169,7 +192,6 @@ body.theme-night {
   cursor: pointer;
 }
 
-/* outfit */
 .outfit h2 {
   margin-bottom: 0.5rem;
 }
@@ -177,6 +199,52 @@ body.theme-night {
 .outfit p {
   font-size: 0.95rem;
   line-height: 1.5;
+}
+
+/* 상태바 영역 */
+.status-bar {
+  margin-top: 0.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  font-size: 0.8rem;
+}
+
+.loading {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.loading.hidden {
+  display: none;
+}
+
+.spinner {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.7);
+  border-top-color: transparent;
+  animation: spin 0.7s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.error-message {
+  color: #ffe2e2;
+}
+
+.error-message.hidden {
+  display: none;
+}
+
+.last-updated {
+  opacity: 0.8;
 }
 
 /* footer */
@@ -188,11 +256,22 @@ body.theme-night {
   font-size: 0.85rem;
 }
 
-#unitToggle {
+.app-footer button {
   border: none;
   border-radius: 999px;
   padding: 0.4rem 0.8rem;
   cursor: pointer;
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  border: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
 }
 
 /* 반응형 */
@@ -210,8 +289,16 @@ body.theme-night {
       "forecast recent";
   }
 
-  .current-weather { grid-area: current; }
-  .outfit { grid-area: outfit; }
-  .forecast { grid-area: forecast; }
-  .recent-search { grid-area: recent; }
+  .current-weather {
+    grid-area: current;
+  }
+  .outfit {
+    grid-area: outfit;
+  }
+  .forecast {
+    grid-area: forecast;
+  }
+  .recent-search {
+    grid-area: recent;
+  }
 }

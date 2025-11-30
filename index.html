@@ -9,7 +9,7 @@
 <body class="theme-default">
   <header class="app-header">
     <div class="logo">
-      <span class="logo-icon">☀️</span>
+      <span class="logo-icon" aria-hidden="true">☀️</span>
       <div class="logo-text">
         <h1>Outfit Weather</h1>
         <p>오늘 날씨 + 옷차림 추천</p>
@@ -17,19 +17,25 @@
     </div>
 
     <div class="search-area">
-      <input id="cityInput" type="text" placeholder="도시를 입력하세요 (예: Seoul)" />
-      <button id="searchBtn">검색</button>
+      <label class="visually-hidden" for="cityInput">도시 검색</label>
+      <input
+        id="cityInput"
+        type="text"
+        placeholder="도시를 입력하세요 (예: Seoul)"
+        autocomplete="off"
+      />
+      <button id="searchBtn" type="button">검색</button>
     </div>
   </header>
 
   <main class="app-main">
     <section class="current-weather card" id="currentWeather">
-      <!-- 현재 날씨 표시 영역 -->
       <p class="placeholder">도시를 검색하면 현재 날씨가 표시됩니다.</p>
     </section>
 
     <section class="outfit card" id="outfitSuggestion">
-      <!-- 옷차림 추천 영역 -->
+      <h2>오늘 뭐 입지?</h2>
+      <p class="placeholder">현재 날씨를 불러온 뒤 옷차림을 추천해 드릴게요.</p>
     </section>
 
     <section class="forecast card">
@@ -45,10 +51,21 @@
         <!-- localStorage에서 버튼 생성 -->
       </div>
     </section>
+
+    <section class="status-bar">
+      <div id="loadingIndicator" class="loading hidden">
+        <span class="spinner" aria-hidden="true"></span>
+        <span>날씨 정보를 불러오는 중...</span>
+      </div>
+      <p id="errorMessage" class="error-message hidden" role="alert"></p>
+      <p id="lastUpdated" class="last-updated"></p>
+    </section>
   </main>
 
   <footer class="app-footer">
-    <button id="unitToggle" data-unit="metric">지금: ℃ (클릭 시 ℉)</button>
+    <button id="unitToggle" data-unit="metric" type="button">
+      지금: ℃ (클릭 시 ℉)
+    </button>
     <p>Powered by OpenWeatherMap</p>
   </footer>
 
