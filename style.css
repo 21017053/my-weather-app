@@ -245,11 +245,6 @@ body.theme-night {
   font-weight: 600;
 }
 
-/* 시간별 차트 */
-.hourly h2 {
-  margin-bottom: 0.5rem;
-}
-
 /* 시간별 차트 카드 높이 고정 */
 .hourly {
   position: relative;
