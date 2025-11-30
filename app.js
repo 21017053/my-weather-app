@@ -3,12 +3,15 @@ const BASE_URL = "https://api.openweathermap.org/data/2.5";
 const ICON_URL = "https://openweathermap.org/img/wn/";
 const STORAGE_KEY = "recentCities";
 
+// 마지막 검색 위치 정보
+// lastLocation = { mode: 'city' | 'coords', city?: string, coords?: {lat, lon} }
+let lastLocation = null;
 let currentUnit = "metric"; // "metric" or "imperial"
-let lastSearchedCity = null;
 
 // === DOM 참조 ===
 const cityInput = document.querySelector("#cityInput");
 const searchBtn = document.querySelector("#searchBtn");
+const geoBtn = document.querySelector("#geoBtn");
 const currentWeatherEl = document.querySelector("#currentWeather");
 const forecastListEl = document.querySelector("#forecastList");
 const outfitEl = document.querySelector("#outfitSuggestion");
@@ -21,9 +24,7 @@ const lastUpdatedEl = document.querySelector("#lastUpdated");
 // === Weather API 모듈 ===
 const WeatherAPI = {
   /**
-   * 현재 날씨 조회
-   * @param {string} city
-   * @returns {Promise<object>}
+   * 현재 날씨 - 도시 이름 기준
    */
   async getCurrent(city) {
     const url = `/api/weather?city=${encodeURIComponent(
@@ -34,7 +35,6 @@ const WeatherAPI = {
     const data = await res.json();
 
     if (!res.ok) {
-      // API에서 전달한 메시지가 있으면 사용
       const msg =
         data?.message === "city not found"
           ? "도시를 찾을 수 없습니다."
@@ -48,9 +48,7 @@ const WeatherAPI = {
   },
 
   /**
-   * 5일 예보 조회 (3일만 뽑아서 사용)
-   * @param {string} city
-   * @returns {Promise<object>}
+   * 5일 예보 - 도시 이름 기준
    */
   async getForecast(city) {
     const url = `/api/weather?city=${encodeURIComponent(
@@ -61,8 +59,43 @@ const WeatherAPI = {
     const data = await res.json();
 
     if (!res.ok) {
-      const msg = "예보 정보를 가져오지 못했습니다.";
-      const error = new Error(msg);
+      const error = new Error("예보 정보를 가져오지 못했습니다.");
+      error.code = res.status;
+      throw error;
+    }
+
+    return data;
+  },
+
+  /**
+   * 현재 날씨 - 좌표(lat, lon) 기준
+   */
+  async getCurrentByCoords(lat, lon) {
+    const url = `/api/weather?lat=${lat}&lon=${lon}&units=${currentUnit}&lang=kr&type=current`;
+
+    const res = await fetch(url);
+    const data = await res.json();
+
+    if (!res.ok) {
+      const error = new Error("현재 위치의 날씨 정보를 가져오지 못했습니다.");
+      error.code = res.status;
+      throw error;
+    }
+
+    return data;
+  },
+
+  /**
+   * 5일 예보 - 좌표(lat, lon) 기준
+   */
+  async getForecastByCoords(lat, lon) {
+    const url = `/api/weather?lat=${lat}&lon=${lon}&units=${currentUnit}&lang=kr&type=forecast`;
+
+    const res = await fetch(url);
+    const data = await res.json();
+
+    if (!res.ok) {
+      const error = new Error("현재 위치의 예보 정보를 가져오지 못했습니다.");
       error.code = res.status;
       throw error;
     }
@@ -98,12 +131,13 @@ const UI = {
       loadingIndicator.classList.remove("hidden");
       searchBtn.disabled = true;
       unitToggleBtn.disabled = true;
-      errorMessageEl.classList.add("hidden");
-      errorMessageEl.textContent = "";
+      if (geoBtn) geoBtn.disabled = true;
+      this.clearError();
     } else {
       loadingIndicator.classList.add("hidden");
       searchBtn.disabled = false;
       unitToggleBtn.disabled = false;
+      if (geoBtn) geoBtn.disabled = false;
     }
   },
 
@@ -293,7 +327,7 @@ const UI = {
       btn.textContent = city;
       btn.addEventListener("click", () => {
         cityInput.value = city;
-        getWeatherFull(city);
+        getWeatherFullByCity(city);
       });
       recentSearchesEl.appendChild(btn);
     });
@@ -308,24 +342,61 @@ function handleSearch() {
     UI.showError("도시 이름을 입력해주세요.");
     return;
   }
-  getWeatherFull(city);
+  getWeatherFullByCity(city);
 }
 
 /**
- * 현재 + 예보를 한번에 가져와서 화면 업데이트
- * @param {string} city
+ * 현재 위치 버튼 클릭 시 처리
  */
-async function getWeatherFull(city) {
+function handleGeoSearch() {
+  UI.clearError();
+
+  if (!("geolocation" in navigator)) {
+    UI.showError("이 브라우저에서는 위치 정보를 사용할 수 없습니다.");
+    return;
+  }
+
+  navigator.geolocation.getCurrentPosition(
+    (position) => {
+      const { latitude, longitude } = position.coords;
+      getWeatherFullByCoords(latitude, longitude);
+    },
+    (error) => {
+      let msg = "위치 정보를 가져오지 못했습니다.";
+      switch (error.code) {
+        case error.PERMISSION_DENIED:
+          msg = "위치 권한이 거부되었습니다. 브라우저 설정을 확인해주세요.";
+          break;
+        case error.POSITION_UNAVAILABLE:
+          msg = "위치 정보를 사용할 수 없습니다.";
+          break;
+        case error.TIMEOUT:
+          msg = "위치 정보를 가져오는 데 시간이 너무 오래 걸립니다.";
+          break;
+      }
+      UI.showError(msg);
+    },
+    {
+      enableHighAccuracy: false,
+      timeout: 10000,
+      maximumAge: 600000,
+    }
+  );
+}
+
+/**
+ * 도시 이름 기반: 현재 + 예보 한번에 가져와서 화면 업데이트
+ */
+async function getWeatherFullByCity(city) {
   if (!navigator.onLine) {
     UI.showError("오프라인 상태입니다. 인터넷 연결을 확인해주세요.");
     return;
   }
 
   UI.setLoading(true);
-  UI.clearError();
 
   try {
-    lastSearchedCity = city;
+    lastLocation = { mode: "city", city };
 
     const [current, forecast] = await Promise.all([
       WeatherAPI.getCurrent(city),
@@ -340,6 +411,43 @@ async function getWeatherFull(city) {
 
     Storage.saveRecent(city);
     UI.renderRecentSearches();
+  } catch (error) {
+    handleError(error);
+  } finally {
+    UI.setLoading(false);
+  }
+}
+
+/**
+ * 좌표 기반: 현재 + 예보 한번에 가져와서 화면 업데이트
+ */
+async function getWeatherFullByCoords(lat, lon) {
+  if (!navigator.onLine) {
+    UI.showError("오프라인 상태입니다. 인터넷 연결을 확인해주세요.");
+    return;
+  }
+
+  UI.setLoading(true);
+
+  try {
+    lastLocation = { mode: "coords", coords: { lat, lon } };
+
+    const [current, forecast] = await Promise.all([
+      WeatherAPI.getCurrentByCoords(lat, lon),
+      WeatherAPI.getForecastByCoords(lat, lon),
+    ]);
+
+    UI.updateCurrentWeather(current);
+    UI.updateForecast(forecast);
+    UI.updateOutfitSuggestion(current);
+    UI.updateBackgroundTheme(current);
+    UI.updateLastUpdated();
+
+    // 현재 위치도 name이 나오면 recent에 저장해줄 수 있음
+    if (current?.name) {
+      Storage.saveRecent(current.name);
+      UI.renderRecentSearches();
+    }
   } catch (error) {
     handleError(error);
   } finally {
@@ -366,8 +474,13 @@ function handleUnitToggle() {
   unitToggleBtn.textContent =
     currentUnit === "metric" ? "지금: ℃ (클릭 시 ℉)" : "지금: ℉ (클릭 시 ℃)";
 
-  if (lastSearchedCity) {
-    getWeatherFull(lastSearchedCity);
+  if (!lastLocation) return;
+
+  if (lastLocation.mode === "city" && lastLocation.city) {
+    getWeatherFullByCity(lastLocation.city);
+  } else if (lastLocation.mode === "coords" && lastLocation.coords) {
+    const { lat, lon } = lastLocation.coords;
+    getWeatherFullByCoords(lat, lon);
   }
 }
 
@@ -380,6 +493,13 @@ function init() {
   cityInput.addEventListener("keydown", (e) => {
     if (e.key === "Enter") handleSearch();
   });
+
+  if (geoBtn && "geolocation" in navigator) {
+    geoBtn.addEventListener("click", handleGeoSearch);
+  } else if (geoBtn) {
+    // 지원 안 하면 버튼 숨기기
+    geoBtn.style.display = "none";
+  }
 
   // 최근 검색어 표시
   UI.renderRecentSearches();

@@ -1,22 +1,37 @@
 // api/weather.js
 
 export default async function handler(req, res) {
-  const { city, type = "current", units = "metric", lang = "kr" } = req.query;
+  const {
+    city,
+    type = "current",
+    units = "metric",
+    lang = "kr",
+    lat,
+    lon,
+  } = req.query;
+
   const apiKey = process.env.OPENWEATHER_KEY;
 
   if (!apiKey) {
     return res.status(500).json({ message: "API key not configured" });
   }
 
-  if (!city) {
-    return res.status(400).json({ message: "city is required" });
-  }
-
   const endpoint = type === "forecast" ? "forecast" : "weather";
 
-  const url = `https://api.openweathermap.org/data/2.5/${endpoint}?q=${encodeURIComponent(
-    city
-  )}&units=${units}&lang=${lang}&appid=${apiKey}`;
+  // 쿼리 문자열 구성: 좌표 우선, 없으면 city 사용
+  let queryPart = "";
+
+  if (lat && lon) {
+    queryPart = `lat=${lat}&lon=${lon}`;
+  } else if (city) {
+    queryPart = `q=${encodeURIComponent(city)}`;
+  } else {
+    return res
+      .status(400)
+      .json({ message: "city 또는 lat/lon 중 하나는 반드시 필요합니다." });
+  }
+
+  const url = `https://api.openweathermap.org/data/2.5/${endpoint}?${queryPart}&units=${units}&lang=${lang}&appid=${apiKey}`;
 
   try {
     const upstreamRes = await fetch(url);
