@@ -16,7 +16,7 @@
       </div>
     </div>
 
-    <div class="search-area">
+    <div class="search-area" aria-label="도시 검색 영역">
       <label class="visually-hidden" for="cityInput">도시 검색</label>
       <input
         id="cityInput"
@@ -31,55 +31,65 @@
     </div>
   </header>
 
-  <main class="app-main">
+  <main class="app-main" aria-label="날씨 정보">
     <section class="current-weather card" id="currentWeather">
-      <p class="placeholder">
+      <p id="currentPlaceholder" class="placeholder">
         도시를 검색하거나 내 위치를 사용하면 현재 날씨가 표시됩니다.
       </p>
     </section>
 
     <section class="outfit card" id="outfitSuggestion">
-      <h2>오늘 뭐 입지?</h2>
-      <p class="placeholder">
+      <h2 id="outfitTitle">오늘 뭐 입지?</h2>
+      <p id="outfitPlaceholder" class="placeholder">
         현재 날씨를 불러온 뒤 옷차림을 추천해 드릴게요.
       </p>
     </section>
 
     <section class="forecast card">
-      <h2>3일 예보</h2>
+      <h2 id="forecastTitle">3일 예보</h2>
       <div class="forecast-list" id="forecastList">
         <!-- 예보 카드들 -->
       </div>
     </section>
 
     <section class="recent-search card">
-      <h2>최근 검색</h2>
+      <h2 id="recentTitle">최근 검색</h2>
       <div id="recentSearches" class="recent-list">
         <!-- localStorage에서 버튼 생성 -->
       </div>
     </section>
 
     <section class="air card" id="airQuality">
-      <h2>공기질 / 미세먼지</h2>
-      <p class="placeholder">
+      <h2 id="airTitle">공기질 / 미세먼지</h2>
+      <p id="airPlaceholder" class="placeholder">
         위치 기반으로 공기질 정보를 표시합니다. (PM2.5, PM10 등)
       </p>
     </section>
 
     <section class="hourly card">
-      <h2>시간별 기온 변화</h2>
+      <h2 id="hourlyTitle">시간별 기온 변화</h2>
       <p class="placeholder" id="hourlyPlaceholder">
         예보 데이터를 불러오면 24시간 이내 기온 변화를 그래프로 표시합니다.
       </p>
-      <canvas id="hourlyChart"></canvas>
+      <canvas id="hourlyChart" aria-label="시간별 기온 그래프"></canvas>
     </section>
 
     <section class="status-bar">
-      <div id="loadingIndicator" class="loading hidden">
+      <div
+        id="loadingIndicator"
+        class="loading hidden"
+        role="status"
+        aria-live="polite"
+      >
         <span class="spinner" aria-hidden="true"></span>
         <span>날씨 정보를 불러오는 중...</span>
       </div>
-      <p id="errorMessage" class="error-message hidden" role="alert"></p>
+      <p
+        id="errorMessage"
+        class="error-message hidden"
+        role="alert"
+        aria-live="polite"
+      ></p>
       <p id="lastUpdated" class="last-updated"></p>
     </section>
   </main>
@@ -87,6 +97,9 @@
   <footer class="app-footer">
     <button id="unitToggle" data-unit="metric" type="button">
       지금: ℃ (클릭 시 ℉)
+    </button>
+    <button id="langToggle" type="button">
+      🌐 EN
     </button>
     <p>Powered by OpenWeatherMap</p>
   </footer>

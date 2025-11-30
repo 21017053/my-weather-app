@@ -16,7 +16,6 @@ export default async function handler(req, res) {
     return res.status(500).json({ message: "API key not configured" });
   }
 
-  // endpoint 선택
   let endpoint = "weather";
   if (type === "forecast") {
     endpoint = "forecast";
@@ -24,9 +23,7 @@ export default async function handler(req, res) {
     endpoint = "air_pollution";
   }
 
-  // 쿼리 문자열 구성: 좌표 우선, 없으면 city
   let queryPart = "";
-
   if (lat && lon) {
     queryPart = `lat=${lat}&lon=${lon}`;
   } else if (city) {
@@ -37,7 +34,6 @@ export default async function handler(req, res) {
       .json({ message: "city 또는 lat/lon 중 하나는 반드시 필요합니다." });
   }
 
-  // 공기질 API는 units/lang이 의미 없지만, 날씨 API에서는 사용됨
   const extra =
     type === "air" ? "" : `&units=${units}&lang=${lang}`;
 

@@ -248,7 +248,7 @@ body.theme-night {
 /* 시간별 차트 카드 + 캔버스 */
 .hourly {
   position: relative;
-  min-height: 260px;  /* 카드 전체 높이 */
+  min-height: 260px;
   overflow: hidden;
 }
 
@@ -259,7 +259,7 @@ body.theme-night {
 .hourly canvas {
   display: block;
   width: 100% !important;
-  height: 200px !important;  /* 실제 그래프 영역 높이 */
+  height: 200px !important;
 }
 
 /* 상태바 영역 */
