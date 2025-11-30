@@ -1,0 +1,13 @@
+## 배포
+
+- 이 프로젝트는 GitHub + Vercel을 이용해 배포되었습니다.
+- GitHub 저장소: https://github.com/21017053/my-weather-app
+- Vercel URL: https://my-weather-app.vercel.app
+
+배포 방식:
+1. 로컬에서 Git으로 버전 관리 후 GitHub main 브랜치에 push
+2. Vercel에서 해당 GitHub 리포를 Import하여 Project 생성
+3. Environment Variables에 `OPENWEATHER_KEY`를 등록
+4. `/api/weather` 서버리스 함수에서 `process.env.OPENWEATHER_KEY`를 사용해
+   OpenWeatherMap API를 호출
+5. main 브랜치에 새 커밋이 push될 때마다 Vercel이 자동으로 재배포
